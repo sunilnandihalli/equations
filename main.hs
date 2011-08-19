@@ -17,7 +17,7 @@ primeFactorsOfNfactorial n = let numberOfFactors = \p -> (p,sum (takeWhile (0/=)
                              in map numberOfFactors primeFactors                      
 
 calcNumberOfWaysToGroup::(Integral a)=>a->[a]->a
-calcNumberOfWaysToGroup m multiplicities = L.foldl' (\cur f->mod ((2*cur-1)*f+cur) m) 1 multiplicities
+calcNumberOfWaysToGroup m multiplicities = L.foldl' (\cur f->((((2|*|cur)-1)|*|f)|+|cur)) 1 multiplicities
     where x |*| y = (mod x m) * (mod y m)
           x |+| y = mod (x + y) m
 
