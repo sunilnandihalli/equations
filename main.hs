@@ -1,7 +1,5 @@
 module Main where
 import qualified Data.List as L
-import qualified Data.HashTable as H
-import qualified Data.Map as M
 
 primes::(Integral a)=>[a]
 
@@ -18,8 +16,16 @@ primeFactorsOfNfactorial n = let numberOfFactors = \p -> (p,sum (takeWhile (0/=)
                                  primeFactors = takeWhile (<=n) primes   
                              in map numberOfFactors primeFactors                      
 
+calcNumberOfWaysToGroup::(Integral a)=>a->[a]->a
+calcNumberOfWaysToGroup m multiplicities = L.foldl' (\cur f->mod ((2*cur-1)*f+cur) m) 1 multiplicities
+    where x |*| y = (mod x m) * (mod y m)
+          x |+| y = mod (x + y) m
+
 numberOfSolutionsToEquation::(Integral a)=>a->a
-numberOfSolutionsToEquation n = let x = map snd (primeFactorsOfNfactorial n)
-                                in 
+numberOfSolutionsToEquation n = let frequencies = (map snd (primeFactorsOfNfactorial n))
+                                in mod ((2 * (calcNumberOfWaysToGroup (fromIntegral 1000007) frequencies)) - 1) 1000007
 
 main = 
+ do nstr<-getLine
+    let n = read nstr
+    print $ numberOfSolutionsToEquation (n::Integer)
