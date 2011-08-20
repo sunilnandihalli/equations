@@ -1,24 +1,26 @@
 module Main where
 import qualified Data.List as L
+import qualified Data.Map as M
 
-primes::(Integral a)=>[a]
-
+primesWheel::(Integral a)=>[a]
 primesFrom::(Integral a)=>a->[a]->[a]
-primesFrom n (f:r) = if (any (\x -> mod n x ==0) (L.takeWhile (\x-> (x*x)<=n) primes))
+primesFrom n (f:r) = if (any (\x -> mod n x ==0) (L.takeWhile (\x-> (x*x)<=n) primesWheel))
                      then primesFrom (n+f) r
                      else n:(primesFrom (n+f) r)
 
-primes = let wheel = cycle [2,4,2,4,6,2,6,4,2,4,6,6,2,6,4,2,6,4,6,8,4,2,4,2,4,8,6,4,6,2,4,6,2,6,6,4,2,4,6,2,6,4,2,4,2,10,2,10]
-         in [2,3,5,7] ++ primesFrom 11 wheel
+primesWheel = let wheel = cycle [2,4,2,4,6,2,6,4,2,4,6,6,2,6,4,2,6,4,6,8,4,2,4,2,4,8,6,4,6,2,4,6,2,6,6,4,2,4,6,2,6,4,2,4,2,10,2,10]
+         in 2:3:5:7:(primesFrom 11 wheel)
+
+primesSieve::(Integral a)=>[a]
+primesSieve = 2:3:5:7:11:(filter (\x->(all (\p-> 0/=(mod x p)) (takeWhile (\p-> p*p<=x) primesSieve))) [13..])
+primes = primesSieve
 
 primeFactorsOfNfactorial::(Integral a)=>a->[a]
 primeFactorsOfNfactorial n = let numberOfFactors = \p -> sum (takeWhile (0/=) $ map (div n) (iterate (p*) p))
-                                 primeFactors = takeWhile (<=n) primes   
+                                 primeFactors = takeWhile (<=n) (map fromInteger primes)
                              in map numberOfFactors primeFactors                      
-
-
 modPow::(Integral a)=>a->a->a->a
-modPow m x 0 = 1
+modPow m x 0 = mod 1 m
 modPow m x 1 = mod x m
 modPow m x n = let nBy2 = div n 2
                    nRem2 = mod n 2
@@ -29,18 +31,25 @@ modPow m x n = let nBy2 = div n 2
 
 calcNumberOfWaysToGroup::(Integral a)=>a->[(a,a)]->a
 calcNumberOfWaysToGroup m multiplicities = L.foldl' (\cur (f,n) -> let r = 2*f+1
-                                                                       modPowRn = r |^| n 
-                                                                   in (cur|*|modPowRn) |+| ((1 - modPowRn) |*| multiplicativeInverseOf2)) 1 multiplicities
+                                                                       modPowRn = modPow m r n 
+                                                                   in (cur|*|modPowRn) |+| ((1 |-| modPowRn) |*| multiplicativeInverseOf2))
+                                           1 multiplicities
     where x |*| y = (mod x m) * (mod y m)
-          x |+| y = mod (x + y) m
-          x |^| n = modPow m x n 
-          multiplicativeInverseOf2 = 5000004
-        
+          x |-| y = (mod x m) - (mod y m)
+          x |+| y = (mod x m) + (mod y m)
+          multiplicativeInverseOf2 = 500004
+
 numberOfSolutionsToEquation::(Integral a)=>a->a
 numberOfSolutionsToEquation n = let frequencies = map (\w@(x:xs)-> (x,(fromIntegral.length $ w))) $ L.group (primeFactorsOfNfactorial n)
-                                in mod ((2 * (calcNumberOfWaysToGroup (fromIntegral 1000007) frequencies)) - 1) 1000007
-
+                                in ((2 |*| (calcNumberOfWaysToGroup (fromIntegral m) frequencies)) |-| 1)
+  where m=1000007
+        x |*| y = (mod x m) * (mod y m)
+        x |-| y = mod x m - mod y m
+        
 main = 
  do nstr<-getLine
     let n = read nstr
-    print $ numberOfSolutionsToEquation (n::Integer)
+--    print $ take 100 primes
+--    print $ "n : "++show n
+--    print $ map (\w@(x:xs)-> (x,(fromIntegral.length $ w))) $ L.group (primeFactorsOfNfactorial n)
+    print $ (numberOfSolutionsToEquation (n::Integer))
