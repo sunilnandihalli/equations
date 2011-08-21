@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -O2 #-}
+
 module Main where
 import qualified Data.List as L
 import qualified Data.Map as M
@@ -9,7 +11,7 @@ primesFrom n (f:r) = if (any (\x -> mod n x ==0) (L.takeWhile (\x-> (x*x)<=n) pr
                      else n:(primesFrom (n+f) r)
 
 primesWheel = let wheel = cycle [2,4,2,4,6,2,6,4,2,4,6,6,2,6,4,2,6,4,6,8,4,2,4,2,4,8,6,4,6,2,4,6,2,6,6,4,2,4,6,2,6,4,2,4,2,10,2,10]
-         in 2:3:5:7:(primesFrom 11 wheel)
+              in 2:3:5:7:(primesFrom 11 wheel)
 
 primesSieve::(Integral a)=>[a]
 primesSieve = 2:3:5:7:11:(filter (\x->(all (\p-> 0/=(mod x p)) (takeWhile (\p-> p*p<=x) primesSieve))) [13..])
