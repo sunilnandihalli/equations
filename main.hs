@@ -21,6 +21,7 @@ primeFactorsOfNfactorial::(Integral a)=>a->[a]
 primeFactorsOfNfactorial n = let numberOfFactors = \p -> sum (takeWhile (0/=) $ map (div n) (iterate (p*) p))
                                  primeFactors = takeWhile (<=n) (map fromInteger primes)
                              in map numberOfFactors primeFactors                      
+
 modPow::(Integral a)=>a->a->a->a
 modPow m x 0 = mod 1 m
 modPow m x 1 = mod x m
@@ -34,7 +35,7 @@ modPow m x n = let nBy2 = div n 2
 calcNumberOfWaysToGroup::(Integral a)=>a->[(a,a)]->a
 calcNumberOfWaysToGroup m multiplicities = L.foldl' (\cur (f,n) -> let r = 2*f+1
                                                                        modPowRn = modPow m r n 
-                                                                   in (cur|*|modPowRn) |+| ((1 |-| modPowRn) |*| multiplicativeInverseOf2))
+                                                                   in (cur |*| modPowRn) |+| ((1 |-| modPowRn) |*| multiplicativeInverseOf2))
                                            1 multiplicities
     where x |*| y = (mod x m) * (mod y m)
           x |-| y = (mod x m) - (mod y m)
